@@ -45,6 +45,8 @@ public class Receiver {
         if (args.length < 1) {
             System.err.println("Usage: java Assignments.Assignment1.Receiver <port>");
             return;
+        
+        
         }
 
         int port = Integer.parseInt(args[0]);
@@ -111,11 +113,8 @@ public class Receiver {
         }
         // In your main, after END_TRANSMISSION:
         try {
-            String csvPath = "detected_frames.csv";
+            String csvPath = "Assignments/Assignment1/detected_frames.csv";
             exportDetectedFramesCsv(csvPath);
-
-            // Use python3 or adjust path if needed
-            runPythonAnalysis("python3", "Assignments/Assignment1/analytics.py", csvPath);
 
             System.out.println("CSV exported and Python analysis complete.");
         } catch (Exception e) {

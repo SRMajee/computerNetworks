@@ -88,8 +88,6 @@ public class FrameBuilder {
         }
 
         calculateCorrectionMethods(frames);
-        System.out.println(frameList.size());
-//        return frameList;
         return ErrorInjector.injectError(frameList);
 
     }

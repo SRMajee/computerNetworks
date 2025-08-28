@@ -136,7 +136,6 @@ public class ErrorInjector {
     // Dispatcher: choose error type by name
     public static List<List<String>> injectError(List<List<String>> frameList) {
         errorInjectedFrameList = new ArrayList<>();
-        System.out.println(frameList.size());
         for (int i = 0; i < frameList.size(); i++) {
             List<String> frames = frameList.get(i);
             errorInjectedFrameList.add(new ArrayList<>());

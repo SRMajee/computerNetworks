@@ -237,20 +237,6 @@ public class Utils {
         }
     }
 
-    // 2) Call Python script
-    protected static void runPythonAnalysis(String pythonCmd, String scriptPath, String csvPath)
-            throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(
-                pythonCmd,
-                scriptPath,
-                csvPath);
-        pb.inheritIO(); // optional: forward Python stdout/stderr to Java console
-        Process p = pb.start();
-        int exit = p.waitFor();
-        if (exit != 0) {
-            System.err.println("Python script exited with code " + exit);
-        }
-    }
 
     protected static void prettyDisplay() {
         // Print results beautifully

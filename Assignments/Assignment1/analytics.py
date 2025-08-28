@@ -33,7 +33,7 @@ def main(csv_path):
     ax.grid(axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
-    plt.savefig('detection_histogram.png')
+    plt.savefig('Assignments/Assignment1/detection_histogram.png')
     plt.close()
 
     # Save performance metrics CSV as before
@@ -44,7 +44,7 @@ def main(csv_path):
         row.update(rates.to_dict())
         metrics.append(row)
     pd.DataFrame(metrics).sort_values('errorType') \
-      .to_csv('performance_metrics.csv', index=False)
+      .to_csv('Assignments/Assignment1/performance_metrics.csv', index=False)
 
     print("Generated detection_histogram.png and performance_metrics.csv")
 
