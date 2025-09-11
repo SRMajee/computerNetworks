@@ -127,7 +127,7 @@ public class Receiver {
 }
 
 /*
+javac Assignments\Assignment1\*.java
 javac Assignments\Assignment1\Sender.java Assignments\Assignment1\Receiver.java
-javac Assignments\Assignment1\Sender.java Assignments\Assignment1\Sender.java
 java Assignments.Assignment1.Receiver 5000
  */

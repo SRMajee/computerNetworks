@@ -53,3 +53,6 @@ if __name__ == "__main__":
         print("Usage: python3 analytics.py detected_frames.csv")
         sys.exit(1)
     main(sys.argv[1])
+
+
+# python Assignments/Assignment1/analytics.py Assignments/Assignment1/detected_frames.csv

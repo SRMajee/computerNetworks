@@ -19,9 +19,6 @@ public class Sender {
         this.senderMaxAddress = macToBinary(senderMAC);
         this.recieveMacAddress = macToBinary(recieverMAC);
         frameList = createFrames(inputFilePath, senderMaxAddress, recieveMacAddress, LEN_BIN);
-        for (int i = 0; i < 2; i++) {
-            System.out.println(frameList.get(i));
-        }
     }
 
     private static String macToBinary(String mac) {
@@ -33,8 +30,8 @@ public class Sender {
 
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 3) {
-            System.err.println("Usage: java Assignments.Assignment1.Sender <host> <port> <inputfile>");
+        if (args.length < 5) {
+            System.err.println("Usage: java Assignments.Assignment1.Sender <host> <port> <inputfile> <senderMac> <recieverMac>");
             return;
         }
 

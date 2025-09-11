@@ -1,20 +1,16 @@
 package Assignments.Assignment1;
 
 import static Assignments.Assignment1.Receiver.detectedFrames;
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
-    /**
-     * Computes a 16-bit checksum by summing each 8-bit byte modulo 2^16.
-     * Appends the 16-bit checksum to the 480-bit frame, then pads with zeros
-     * up to 512 bits (64 bytes).
-     *
-     * @param frame 480-bit binary string
-     * @return 512-bit binary string: frame + 16-bit checksum + zero padding
-     */
+
     public static String getChecksum(String frame) {
         final int FRAME_BITS = 480;
         final int TARGET_BITS = 512;
@@ -46,15 +42,6 @@ public class Utils {
         return out.toString();
     }
 
-    /**
-     * Computes an N-bit CRC for a 60-byte (480-bit) frame, appends the CRC bits,
-     * and pads with zeros to a total of 64 bytes (512 bits).
-     *
-     * @param frameBits 480-character string of '0'/'1' (60 bytes)
-     * @param width     CRC width in bits: one of 8, 10, 16, or 32
-     * @return 512-character string: original 480 bits + CRC width bits + zero
-     *         padding
-     */
     public static String getCrc(String frameBits, int width) {
         if (frameBits.length() != 480) {
             throw new IllegalArgumentException("Frame must be exactly 480 bits");
@@ -108,7 +95,7 @@ public class Utils {
         // Convert CRC to zero-padded binary string of length 'width'
         long mask = (width == 32) ? 0xFFFFFFFFL : ((1L << width) - 1);
         String crcBits = String.format("%" + width + "s",
-                Long.toBinaryString(((long) crcValue) & mask))
+                        Long.toBinaryString(((long) crcValue) & mask))
                 .replace(' ', '0');
 
         // Append CRC bits and pad zeros to reach 512 bits
@@ -120,18 +107,7 @@ public class Utils {
         return sb.toString();
     }
 
-    /**
-     * Generic CRC computation for arbitrary width.
-     *
-     * @param data   byte array over which to compute CRC
-     * @param width  CRC width in bits
-     * @param poly   generator polynomial
-     * @param init   initial remainder value
-     * @param refin  reflect input bytes
-     * @param refout reflect remainder before final xor
-     * @param xorout final xor value
-     * @return CRC value masked to 'width' bits
-     */
+
     public static int computeCrc(
             byte[] data,
             int width,
@@ -165,7 +141,7 @@ public class Utils {
         return (crc ^ xorout) & mask;
     }
 
-    protected static Integer validateCrc(String frame, int width) {
+    public static Integer validateCrc(String frame, int width) {
         try {
             // Extract the original 480-bit data (first 480 bits)
             String originalData = frame.substring(0, 480);
@@ -190,7 +166,7 @@ public class Utils {
         }
     }
 
-    protected static Integer validateCheckSum(String frame) {
+    public static Integer validateCheckSum(String frame) {
         try {
             // Extract the original 480-bit data (first 480 bits)
             String originalData = frame.substring(0, 480);
@@ -250,7 +226,7 @@ public class Utils {
         System.out.println("-".repeat(80));
 
         // Error type names for display
-        String[] errorTypeNames = { "None", "Single", "Two", "Odd", "Burst" };
+        String[] errorTypeNames = {"None", "Single", "Two", "Odd", "Burst"};
 
         for (int i = 0; i < detectedFrames.size(); i++) {
             List<Integer> frameResult = detectedFrames.get(i);
@@ -314,6 +290,22 @@ public class Utils {
 
         System.out.println("=".repeat(80));
 
+    }
+
+    public static void exportToCSV(Map<Integer, Long> sendTimeMap, Map<Integer, Long> frameTimes,String fileName) {
+//        String fileName = "Assignments/Assignment2/csvframe_times";
+        try (PrintWriter writer = new PrintWriter(new File(fileName))) {
+            writer.println("Frame,FirstSendTime(ms),AckTime(ms)");
+
+            for (int frame : sendTimeMap.keySet()) {
+                Long sentAt = sendTimeMap.get(frame);
+                Long timeTaken = frameTimes.get(frame); // may be null if never ACKed
+                writer.println(frame + "," + sentAt + "," + (timeTaken != null ? timeTaken : "NA"));
+            }
+            System.out.println("Sender : Frame times exported to " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
