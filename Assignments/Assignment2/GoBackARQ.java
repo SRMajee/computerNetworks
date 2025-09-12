@@ -86,7 +86,7 @@ public class GoBackARQ {
             System.out.println("Sender : Frame " + frameNumber + " lost in transmission... (simulating loss)");
         }
         // record first send time only
-        sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
+        if (!sendTimeMap.containsKey(frameNumber)) sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
     }
 
     private void startTimer(Socket socket) throws IOException {

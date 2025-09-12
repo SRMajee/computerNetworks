@@ -75,7 +75,7 @@ public class SelectiveRepeatARQ {
         } else {
             System.out.println("Sender : Frame " + i + " lost in transmission... (simulating loss)");
         }
-        sendTimeMap.putIfAbsent(i, System.currentTimeMillis());
+        if (!sendTimeMap.containsKey(i)) sendTimeMap.putIfAbsent(i, System.currentTimeMillis());
     }
 
 
