@@ -56,45 +56,6 @@ public class Receiver {
                         default:
                             break;
                     }
-                    // Process each frame one by one
-//                for (int expectedFrameNo = 0; expectedFrameNo < totalFrames; expectedFrameNo++) {
-//                    // ArrayList to store current frame frame: [frameNumber, errorType, checksum, crc8, crc10, crc16, crc32]
-//                    ArrayList<String> currentFrame = new ArrayList<>();
-//
-//                    // Read frame header
-//                    String frameLine = in.readLine();
-//                    String frameNumber = frameLine.split(":")[1];
-//                    currentFrame.add(frameNumber);
-//
-//                    // Read error type
-//                    String errorLine = in.readLine();
-//                    String errorType = errorLine.split(":")[1];
-//                    currentFrame.add(errorType);
-//
-//                    // Read all 5 schemes
-//                    for (int i = 0; i < 5; i++) {
-//                        String schemeLine = in.readLine();
-//                        String schemeData = schemeLine.split(":", 2)[1]; // Get frame part after first ":"
-//                        currentFrame.add(schemeData);
-//                    }
-//
-//                    // Read end frame marker
-//                    String endFrame = in.readLine();
-//
-//                    // Now currentFrame contains: [frameNumber, errorType, checksum_data, crc8_data, crc10_data, crc16_data, crc32_data]
-//                    System.out.println("Received Frame " + frameNumber + " with error type " + errorType);
-//
-//                    // Pass to your checking function here
-//                    checkFrame(currentFrame); // You can call your function here
-//
-//                    // Send acknowledgment after processing this frame
-//                    out.println("ACK");
-//                }
-
-                    // Read end transmission
-//                String endTransmission = in.readLine();
-//                System.out.println("All frames received successfully!");
-
                 } catch (IOException e) {
                     System.err.println("Error handling client connection: " + e.getMessage());
                 }
@@ -102,17 +63,6 @@ public class Receiver {
         } catch (IOException e) {
             System.err.println("Could not listen on port " + port + ": " + e.getMessage());
         }
-        // In your main, after END_TRANSMISSION:
-//        try {
-//            String csvPath = "Assignments/Assignment1/detected_frames.csv";
-//            exportDetectedFramesCsv(csvPath);
-//
-//            System.out.println("CSV exported and Python analysis complete.");
-//        } catch (Exception e) {
-//            System.err.println("Failed to run post-processing: " + e.getMessage());
-//        }
-
-//        prettyDisplay();
     }
 
     private static void stop_and_wait(BufferedReader in, PrintWriter out) throws IOException {

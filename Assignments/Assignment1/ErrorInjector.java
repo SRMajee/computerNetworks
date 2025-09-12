@@ -52,15 +52,7 @@ public class ErrorInjector {
             }
         }
     }
-    /**
-     * Takes a 512-bit (64-byte) binary string input, divides it into 32 consecutive
-     * 16-bit sequences, finds any two 16-bit sequences where a bit-position mismatch exists,
-     * flips that differing bit (exactly one differing bit per sequence) using flipBit(),
-     * replaces the modified sequences at their original positions,
-     * and returns the new 512-bit string.
-     * @param frame 512-bit binary string (64 bytes * 8)
-     * @return Modified 512-bit binary string with flips applied
-     */
+
     public static String twoBitError(String frame) {
         if (frame.length() != 512) {
             throw new IllegalArgumentException("Input must be exactly 512 bits");

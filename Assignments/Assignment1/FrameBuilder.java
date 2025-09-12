@@ -32,17 +32,7 @@ public class FrameBuilder {
     static List<Frame> frames;
     static List<List<String>> frameList;
 
-    /**
-     * Reads a text file in 46-char blocks, converts to 8-bit-per-char binary,
-     * prepends sender, receiver, and LEN fields, and returns a list of Frames.
-     *
-     * @param inputFilePath     Path to the text file to read.
-     * @param senderMacAddress  6-byte (48-bit) binary string for sender MAC.
-     * @param receiveMacAddress 6-byte (48-bit) binary string for receiver MAC.
-     * @param LEN               2-byte (16-bit) binary string for payload length.
-     * @return List of Frame objects, each containing exactly 480 bits.
-     * @throws IOException If file reading fails.
-     */
+
     public static List<List<String>> createFrames(
             String inputFilePath,
             String senderMacAddress,

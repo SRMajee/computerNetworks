@@ -73,16 +73,7 @@ public class CrcErrorInjector {
         return new String(chars);
     }
 
-    /**
-     * Inject error burst in data according to scheme:
-     * - checksum: flip all bits
-     * - if i <= degree: random unique flips
-     * - if i > degree: construct undetectable error (multiple of g(x)) by XORing shifted copies of g(x)
-     *
-     * @param data   binary string (e.g., 512 bits)
-     * @param scheme "crc8","crc10","crc16","crc32","checksum"
-     * @return mutated binary string with errors injected
-     */
+
     public static String getBurstError(String data, int scheme) {
         CRCParams params = getCRCParams(scheme);
         int length = data.length();
