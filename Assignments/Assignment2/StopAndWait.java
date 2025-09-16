@@ -43,16 +43,13 @@ public class StopAndWait {
             out.println(TOTAL_FRAMES);
 
             long totalTime = 0;
-            socket.setSoTimeout(TIMEOUT_MS);
             Random random = new Random();
-
+            startTimer(socket);
             for (int i = 0; i < frameList.size() && i < TOTAL_FRAMES; i++) {
                 boolean ackReceived = false;
 
                 while (!ackReceived) {
                     sendFrame(i, random, out);
-                    startTimer(socket);
-
                     try {
                         ackReceived = recvAck(i, in, socket);
                     } catch (SocketTimeoutException e) {
