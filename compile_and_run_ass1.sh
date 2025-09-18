@@ -28,7 +28,7 @@ RECEIVER_MAC=${RECEIVER_MAC:-$DEFAULT_RECEIVER_MAC}
 
 # --- Compile Java sources ---
 echo "=== Compiling Java sources ==="
-javac "${PROJECT_ROOT}/Assignments/Assignment1"/*.java
+javac -d "${PROJECT_ROOT}/out" "${PROJECT_ROOT}/Assignments/Assignment1"/*.java
 if [ $? -ne 0 ]; then
   echo "Compilation failed. Exiting."
   exit 1
@@ -36,7 +36,7 @@ fi
 
 # --- Run Receiver ---
 echo "=== Starting Receiver on port ${PORT} ==="
-java -cp "${PROJECT_ROOT}" Assignments.Assignment1.Receiver "${PORT}" &
+java -cp "${PROJECT_ROOT}/out" Assignments.Assignment1.Receiver "${PORT}" &
 RECEIVER_PID=$!
 
 # Allow receiver to start
@@ -44,7 +44,7 @@ sleep 1
 
 # --- Run Sender ---
 echo "=== Starting Sender ==="
-java -cp "${PROJECT_ROOT}" Assignments.Assignment1.Sender localhost "${PORT}" "${INPUTFILE}" "${SENDER_MAC}" "${RECEIVER_MAC}"
+java -cp "${PROJECT_ROOT}/out" Assignments.Assignment1.Sender localhost "${PORT}" "${INPUTFILE}" "${SENDER_MAC}" "${RECEIVER_MAC}"
 
 # Allow processing time
 sleep 5
