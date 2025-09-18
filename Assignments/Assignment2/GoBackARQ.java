@@ -30,6 +30,7 @@ public class GoBackARQ {
 
             // tell receiver : GoBackN
             out.println("2");
+            out.println(TOTAL_FRAMES);
 
             int start = 0;     // first unacknowledged frame
             int i = 0;         // next frame to send

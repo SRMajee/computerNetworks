@@ -31,6 +31,7 @@ public class SelectiveRepeatARQ {
 
             // tell receiver : Selective Repeat
             out.println("3");
+            out.println(TOTAL_FRAMES);
 
             Random random = new Random();
             LinkedHashSet<Integer> window = new LinkedHashSet<>();

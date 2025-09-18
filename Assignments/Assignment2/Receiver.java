@@ -42,6 +42,7 @@ public class Receiver {
 
                     // Read Flow Control Scheme
                     int ch = Integer.parseInt(in.readLine());
+                    totalFrames = Integer.parseInt(in.readLine());
                     switch (ch) {
                         case 1:
                             stop_and_wait(in, out);
