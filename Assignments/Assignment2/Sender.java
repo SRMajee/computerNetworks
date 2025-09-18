@@ -12,7 +12,7 @@ import java.util.Scanner;
 import static Assignments.Assignment2.FrameBuilder.createFrames;
 
 public class Sender {
-    private String inputFilePath, senderMaxAddress, recieveMacAddress;
+    private String inputFilePath, senderMacAddress, recieverMacAddress;
     private static final String LEN_BIN = "00101110" + "00101110"; // 46 decimal
     protected static List<String> frameList; // frame 1 -> 5 frames for different schems with error injected in 4/5 out of them
     protected static int  port;
@@ -25,9 +25,9 @@ public class Sender {
 
     public Sender(String inputFilePath, String senderMAC, String recieverMAC) throws IOException {
         this.inputFilePath = inputFilePath;
-        this.senderMaxAddress = macToBinary(senderMAC);
-        this.recieveMacAddress = macToBinary(recieverMAC);
-        frameList = createFrames(inputFilePath, senderMaxAddress, recieveMacAddress, LEN_BIN);
+        this.senderMacAddress = macToBinary(senderMAC);
+        this.recieverMacAddress = macToBinary(recieverMAC);
+        frameList = createFrames(inputFilePath, senderMacAddress, recieverMacAddress, LEN_BIN);
     }
 
     private static String macToBinary(String mac) {
