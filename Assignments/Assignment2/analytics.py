@@ -88,3 +88,5 @@ metrics_df.to_csv(out_csv, index=False)
 
 print(f"Histogram saved as {out_img}")
 print(f"Metrics saved as {out_csv}")
+
+# python Assignments/Assignment2/analytics.py

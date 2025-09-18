@@ -30,7 +30,6 @@ public class GoBackARQ {
 
             // tell receiver : GoBackN
             out.println("2");
-            out.println(TOTAL_FRAMES);
 
             int start = 0;     // first unacknowledged frame
             int i = 0;         // next frame to send
@@ -86,7 +85,7 @@ public class GoBackARQ {
             System.out.println("Sender : Frame " + frameNumber + " lost in transmission... (simulating loss)");
         }
         // record first send time only
-        if (!sendTimeMap.containsKey(frameNumber)) sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
+        sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
     }
 
     private void startTimer(Socket socket) throws IOException {

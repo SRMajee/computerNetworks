@@ -31,7 +31,6 @@ public class SelectiveRepeatARQ {
 
             // tell receiver : Selective Repeat
             out.println("3");
-            out.println(TOTAL_FRAMES);
 
             Random random = new Random();
             LinkedHashSet<Integer> window = new LinkedHashSet<>();
@@ -75,7 +74,7 @@ public class SelectiveRepeatARQ {
         } else {
             System.out.println("Sender : Frame " + i + " lost in transmission... (simulating loss)");
         }
-        if (!sendTimeMap.containsKey(i)) sendTimeMap.putIfAbsent(i, System.currentTimeMillis());
+        sendTimeMap.putIfAbsent(i, System.currentTimeMillis());
     }
 
 

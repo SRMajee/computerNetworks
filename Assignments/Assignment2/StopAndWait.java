@@ -43,14 +43,18 @@ public class StopAndWait {
             out.println(TOTAL_FRAMES);
 
             long totalTime = 0;
+            socket.setSoTimeout(TIMEOUT_MS);
             Random random = new Random();
+
             for (int i = 0; i < frameList.size() && i < TOTAL_FRAMES; i++) {
                 boolean ackReceived = false;
 
                 while (!ackReceived) {
-                    sendFrame(i, random, out, socket);
+                    sendFrame(i, random, out);
+                    startTimer(socket);
+
                     try {
-                        ackReceived = recvAck(i, in);
+                        ackReceived = recvAck(i, in, socket);
                     } catch (SocketTimeoutException e) {
                         handleTimeout(i);
                     }
@@ -67,7 +71,7 @@ public class StopAndWait {
     }
 
 
-    private void sendFrame(int frameNumber, Random random, PrintWriter out, Socket socket) throws IOException {
+    private void sendFrame(int frameNumber, Random random, PrintWriter out) {
         String frame = frameList.get(frameNumber);
         if (random.nextInt(100) < PROB) {
             System.out.println("Sender : Successfully Sent frame " + frameNumber);
@@ -75,9 +79,9 @@ public class StopAndWait {
         } else {
             System.out.println("Sender : Frame " + frameNumber + " lost in transmission... (simulating loss)");
         }
-        startTimer(socket);
         // record first send time only
-        if (!sendTimeMap.containsKey(frameNumber)) sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
+        sendTimeMap.putIfAbsent(frameNumber, System.currentTimeMillis());
+
     }
 
 
@@ -94,7 +98,7 @@ public class StopAndWait {
     }
 
     // Receives an ACK and computes the RTT/time taken for the frame.
-    private boolean recvAck(int i, BufferedReader in) throws IOException {
+    private boolean recvAck(int i, BufferedReader in, Socket socket) throws IOException {
         String ack = in.readLine();
         long endTime = System.currentTimeMillis();
 
@@ -106,6 +110,7 @@ public class StopAndWait {
             System.out.println("Sender : Frame " + i + " acknowledged. Time taken: "
                     + frameTimes.get(i) + " ms");
 
+            socket.setSoTimeout(TIMEOUT_MS);
             System.out.println("\nSender : Timer Restarted ...\n");
 
             return true;

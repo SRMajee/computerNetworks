@@ -42,7 +42,6 @@ public class Receiver {
 
                     // Read Flow Control Scheme
                     int ch = Integer.parseInt(in.readLine());
-                    totalFrames = Integer.parseInt(in.readLine());
                     switch (ch) {
                         case 1:
                             stop_and_wait(in, out);
@@ -79,7 +78,7 @@ public class Receiver {
 
             // Simulate ACK loss
             int rand = random.nextInt(100);
-            if (rand < 95) { // 90% chance of sending ACK
+            if (rand < 95) { // 95% chance of sending ACK
                 out.println("ACK");
                 System.out.println("Receiver : ACK sent for frame " + i);
                 i++;
