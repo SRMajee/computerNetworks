@@ -1,170 +1,201 @@
 #!/bin/bash
 
 # --- Configuration ---
+
 PROJECT_ROOT="$(pwd)"
 ANALYTICS_DIR="${PROJECT_ROOT}/Assignments/Assignment3"
 PYTHON_PATH="/c/Users/User/anaconda3/python.exe"
 PY_SCRIPT="${ANALYTICS_DIR}/analytics.py"
 
 # --- Defaults ---
-DEFAULT_PORT=5000
-DEFAULT_INPUT="Assignments/Assignment3/inputfile.txt"
-DEFAULT_SENDER_MAC="98-BA-5F-ED-66-B7"
-DEFAULT_RECEIVER_MAC="AA-BA-5F-ED-66-B7"
-DEFAULT_P_VALUES="0.1,0.3,0.5,0.7,0.9"
+DEFAULT_NUM_STATIONS=4
+DEFAULT_P_START=1  # Using integers: 1 = 0.1, 9 = 0.9
+DEFAULT_P_END=9
+DEFAULT_P_STEP=1
+DEFAULT_FRAMES_PER_STATION=50
+DEFAULT_SLOT_TIME_MS=10
+DEFAULT_SIM_SLOTS=1000
+DEFAULT_BASE_PORT=5000
 
 # --- User Inputs ---
-echo "=== p-persistent CSMA-CD Simulation Configuration ==="
-read -p "Port [${DEFAULT_PORT}]: " PORT
-PORT=${PORT:-$DEFAULT_PORT}
+read -p "Number of stations [${DEFAULT_NUM_STATIONS}]: " NUM_STATIONS
+NUM_STATIONS=${NUM_STATIONS:-$DEFAULT_NUM_STATIONS}
 
-read -p "Input file path [${DEFAULT_INPUT}]: " INPUTFILE
-INPUTFILE=${INPUTFILE:-$DEFAULT_INPUT}
+echo "P-value range (using integers): 1=0.1, 2=0.2, ..., 9=0.9"
+read -p "Starting p-value (1-9) [${DEFAULT_P_START}]: " P_START_INT
+P_START_INT=${P_START_INT:-$DEFAULT_P_START}
 
-read -p "Sender MAC [${DEFAULT_SENDER_MAC}]: " SENDER_MAC
-SENDER_MAC=${SENDER_MAC:-$DEFAULT_SENDER_MAC}
+read -p "Ending p-value (1-9) [${DEFAULT_P_END}]: " P_END_INT
+P_END_INT=${P_END_INT:-$DEFAULT_P_END}
 
-read -p "Receiver MAC [${DEFAULT_RECEIVER_MAC}]: " RECEIVER_MAC
-RECEIVER_MAC=${RECEIVER_MAC:-$DEFAULT_RECEIVER_MAC}
+read -p "P-value step [${DEFAULT_P_STEP}]: " P_STEP_INT
+P_STEP_INT=${P_STEP_INT:-$DEFAULT_P_STEP}
 
-read -p "p values to test (comma-separated) [${DEFAULT_P_VALUES}]: " P_VALUES
-P_VALUES=${P_VALUES:-$DEFAULT_P_VALUES}
+read -p "Frames per station [${DEFAULT_FRAMES_PER_STATION}]: " FRAMES_PER_STATION
+FRAMES_PER_STATION=${FRAMES_PER_STATION:-$DEFAULT_FRAMES_PER_STATION}
+
+read -p "Slot time (ms) [${DEFAULT_SLOT_TIME_MS}]: " SLOT_TIME_MS
+SLOT_TIME_MS=${SLOT_TIME_MS:-$DEFAULT_SLOT_TIME_MS}
+
+read -p "Total simulation slots [${DEFAULT_SIM_SLOTS}]: " SIM_SLOTS
+SIM_SLOTS=${SIM_SLOTS:-$DEFAULT_SIM_SLOTS}
+
+read -p "Base port [${DEFAULT_BASE_PORT}]: " BASE_PORT
+BASE_PORT=${BASE_PORT:-$DEFAULT_BASE_PORT}
 
 # --- Compile Java sources ---
 echo "=== Compiling Java sources ==="
 javac -d "${PROJECT_ROOT}/out" "${PROJECT_ROOT}/Assignments/Assignment3"/*.java
+
 if [ $? -ne 0 ]; then
-  echo "Compilation failed. Exiting."
-  exit 1
+    echo "Compilation failed. Exiting."
+    exit 1
 fi
 
-# --- Run Receiver ---
-echo "=== Starting Receiver on port ${PORT} ==="
-java -cp "${PROJECT_ROOT}/out" Assignments.Assignment3.Receiver "${PORT}" &
-RECEIVER_PID=$!
+# --- Clean up existing CSV files ---
+echo "=== Cleaning up existing CSV files ==="
+rm -f "${ANALYTICS_DIR}"/csma_cd_results_*.csv
+rm -f csma_cd_results_*.csv 2>/dev/null
 
-# Allow receiver to start
-sleep 2
+# --- Run CSMA/CD Simulations ---
+echo "=== Starting P-Persistent CSMA/CD Simulations ==="
+echo "Configuration: ${NUM_STATIONS} stations, p-range ${P_START_INT}-${P_END_INT} (step ${P_STEP_INT})"
+echo "Frames per station: ${FRAMES_PER_STATION}, Slot time: ${SLOT_TIME_MS}ms, Total slots: ${SIM_SLOTS}"
+echo "Base port: ${BASE_PORT}"
+echo
 
-echo "Receiver started with PID: ${RECEIVER_PID}"
-
-# --- Run Sender for each p value ---
-echo "=== Running CSMA-CD Simulations ==="
-echo "Configuration:"
-echo "  - Host: localhost"
-echo "  - Port: ${PORT}"
-echo "  - Input file: ${INPUTFILE}"
-echo "  - Sender MAC: ${SENDER_MAC}"
-echo "  - Receiver MAC: ${RECEIVER_MAC}"
-echo "  - P values: ${P_VALUES}"
-echo ""
-
-# Convert comma-separated p values to array
-IFS=',' read -ra P_ARRAY <<< "$P_VALUES"
-
-# Run simulation for each p value automatically
-for p in "${P_ARRAY[@]}"; do
-    p=$(echo "$p" | xargs) # Trim whitespace
-    echo "=== Running CSMA-CD simulation with p = ${p} ==="
-
-    # Create a temporary script to automate sender input
-    temp_script=$(mktemp)
-
-    # Determine menu choice based on p value
-    case "$p" in
-        "0.1") choice=1 ;;
-        "0.3") choice=2 ;;
-        "0.5") choice=3 ;;
-        "0.7") choice=4 ;;
-        "0.9") choice=5 ;;
-        *) choice=1 ;; # Default to 0.1
-    esac
-
-    # Write choices to temp script: choice, then exit (0)
-    echo -e "${choice}\n0" > "$temp_script"
-
-    # Run sender with automated input
-    java -cp "${PROJECT_ROOT}" Assignments.Assignment3.Sender localhost "${PORT}" "${INPUTFILE}" "${SENDER_MAC}" "${RECEIVER_MAC}" < "$temp_script"
-
-    rm "$temp_script"
-
-    if [ $? -ne 0 ]; then
-        echo "Sender execution failed for p = ${p}"
-    else
-        echo "Simulation complete for p = ${p}"
-    fi
-
-    echo "Waiting 2 seconds before next simulation..."
-    sleep 2
-    echo ""
+# Create array of p-values without bc (using integer arithmetic)
+P_VALUES=()
+for ((i=P_START_INT; i<=P_END_INT; i+=P_STEP_INT)); do
+    P_VALUES+=($i)
 done
 
-# Allow final processing time
-sleep 2
+echo "P-values to simulate (integers): ${P_VALUES[@]}"
+echo
 
-# Terminate receiver (ignore error if already exited)
-echo "Terminating Receiver (PID ${RECEIVER_PID})"
-kill "${RECEIVER_PID}" 2>/dev/null || true
+# Run simulation for each p-value
+for p_int in "${P_VALUES[@]}"; do
+    # Convert integer to decimal (1 -> 0.1, 5 -> 0.5, etc.)
+    p_decimal="0.$p_int"
 
-# Wait a moment for cleanup
-sleep 1
+    # Calculate dynamic port to avoid conflicts (simple integer math)
+    CURRENT_PORT=$((BASE_PORT + p_int))
 
-# --- Combine results into summary CSV ---
-echo "=== Generating combined results ==="
-SUMMARY_CSV="${ANALYTICS_DIR}/combined_results.csv"
-echo "p,Throughput,Average_Delay,Efficiency,Collision_Rate,Total_Transmitted,Total_Received,Total_Collisions" > "$SUMMARY_CSV"
+    echo "--- Running simulation with p = $p_decimal on port ${CURRENT_PORT} ---"
 
-for p in "${P_ARRAY[@]}"; do
-    p=$(echo "$p" | xargs)
-    p_filename=$(echo "$p" | sed 's/\.//g')
-    INDIVIDUAL_CSV="${ANALYTICS_DIR}/performance_metrics_p${p_filename}.csv"
+    # Debug output
+    echo "Command: java -cp ${PROJECT_ROOT}/out Assignments.Assignment3.Main ${NUM_STATIONS} $p_decimal ${FRAMES_PER_STATION} ${SLOT_TIME_MS} ${SIM_SLOTS} ${CURRENT_PORT}"
 
-    if [ -f "$INDIVIDUAL_CSV" ]; then
-        # Extract values from individual CSV
-        throughput=$(grep "Throughput," "$INDIVIDUAL_CSV" | cut -d',' -f2)
-        delay=$(grep "Average_Forwarding_Delay," "$INDIVIDUAL_CSV" | cut -d',' -f2)
-        efficiency=$(grep "Efficiency," "$INDIVIDUAL_CSV" | cut -d',' -f2)
-        transmitted=$(grep "Total_Frames_Expected," "$INDIVIDUAL_CSV" | cut -d',' -f2)
-        received=$(grep "Total_Frames_Received," "$INDIVIDUAL_CSV" | cut -d',' -f2)
+    # Run the simulation
+    java -cp "${PROJECT_ROOT}/out" Assignments.Assignment3.Main ${NUM_STATIONS} $p_decimal ${FRAMES_PER_STATION} ${SLOT_TIME_MS} ${SIM_SLOTS} ${CURRENT_PORT}
 
-        # Calculate collision rate and other metrics
-        if [ -n "$transmitted" ] && [ "$transmitted" != "0" ]; then
-            collision_rate=$(echo "scale=4; (($transmitted - $received) / $transmitted)" | bc -l 2>/dev/null || echo "0.0000")
-            collisions=$(echo "($transmitted - $received)" | bc -l 2>/dev/null || echo "0")
-        else
-            collision_rate="0.0000"
-            collisions="0"
-        fi
+    SIMULATION_EXIT_CODE=$?
 
-        # Add to summary CSV
-        echo "${p},${throughput},${delay},${efficiency},${collision_rate},${transmitted},${received},${collisions}" >> "$SUMMARY_CSV"
-        echo "Processed results for p = ${p}"
+    if [ $SIMULATION_EXIT_CODE -eq 0 ]; then
+        echo "✓ Simulation with p = $p_decimal completed successfully"
     else
-        echo "Warning: Results file not found for p = ${p} (${INDIVIDUAL_CSV})"
+        echo "✗ Simulation with p = $p_decimal failed (exit code: $SIMULATION_EXIT_CODE)"
+        echo "  Possible issues:"
+        echo "  1. Main class not found in compiled output"
+        echo "  2. MediumServer constructor doesn't accept p parameter"
+        echo "  3. Java runtime error - check console output above"
     fi
+
+    echo
+
+    # Brief pause between simulations
+    sleep 1
 done
 
-echo "Combined results saved to: ${SUMMARY_CSV}"
+# Allow processing time
+sleep 3
+
+# --- Verify CSV files were generated ---
+echo "=== Verifying CSV output files ==="
+
+# Check in analytics directory first
+CSV_COUNT=$(ls "${ANALYTICS_DIR}"/csma_cd_results_*.csv 2>/dev/null | wc -l)
+
+if [ $CSV_COUNT -gt 0 ]; then
+    echo "Generated ${CSV_COUNT} CSV files in analytics directory:"
+    ls -la "${ANALYTICS_DIR}"/csma_cd_results_*.csv
+    echo
+elif [ -f "csma_cd_results_0.1.csv" ] || [ -f "csma_cd_results_0.5.csv" ]; then
+    echo "Found CSV files in current directory:"
+    ls -la csma_cd_results_*.csv 2>/dev/null
+    echo "Moving to analytics directory..."
+    mkdir -p "${ANALYTICS_DIR}"
+    mv csma_cd_results_*.csv "${ANALYTICS_DIR}/" 2>/dev/null
+    echo "CSV files moved successfully."
+else
+    echo "WARNING: No CSV files were generated!"
+    echo
+    echo "Troubleshooting steps:"
+    echo "1. Check if Java compilation was successful above"
+    echo "2. Verify MediumServer.java has been modified to accept p parameter"
+    echo "3. Check if MetricsCollector.exportCsv() method exists"
+    echo "4. Try running a single simulation manually:"
+    echo "   java -cp ${PROJECT_ROOT}/out Assignments.Assignment3.Main 4 0.5 50 10 1000 5005"
+    echo
+    exit 1
+fi
 
 # --- Run Python analytics ---
+sleep 2
+
 if [ -f "$PY_SCRIPT" ]; then
     echo "=== Running Python analytics ==="
-    "$PYTHON_PATH" "$PY_SCRIPT"
-    if [ $? -ne 0 ]; then
-        echo "Python analysis failed, but continuing..."
+
+    cd "${ANALYTICS_DIR}"
+
+    # Try multiple Python commands
+    if "$PYTHON_PATH" "$(basename "$PY_SCRIPT")" 2>/dev/null; then
+        echo "Python analysis completed successfully with configured Python path"
+    elif python3 "$(basename "$PY_SCRIPT")" 2>/dev/null; then
+        echo "Python analysis completed successfully with python3"
+    elif python "$(basename "$PY_SCRIPT")" 2>/dev/null; then
+        echo "Python analysis completed successfully with python"
     else
-        echo "=== Analysis complete: performance_comparison.png and throughput_delay_analysis.png generated ==="
+        echo "Python analysis failed with all attempted Python commands"
+        echo "Try running manually: cd ${ANALYTICS_DIR} && python $(basename "$PY_SCRIPT")"
     fi
+
+    echo "=== Analysis complete ==="
+
+    # List generated plot files
+    if [ -f "throughput_vs_p.png" ] || [ -f "delay_vs_p.png" ]; then
+        echo "Generated plot files:"
+        ls -la *.png 2>/dev/null
+    else
+        echo "No plot files generated - check Python script output above"
+    fi
+
 else
-    echo "No Python analytics script found at $PY_SCRIPT — skipping analysis"
+    echo "No Python analytics script found at $PY_SCRIPT"
+    echo "Looking for plot_csma_cd.py..."
+    if [ -f "${ANALYTICS_DIR}/plot_csma_cd.py" ]; then
+        echo "Found plot_csma_cd.py, updating script path..."
+        PY_SCRIPT="${ANALYTICS_DIR}/plot_csma_cd.py"
+        cd "${ANALYTICS_DIR}"
+        python3 "plot_csma_cd.py" 2>/dev/null || python "plot_csma_cd.py" 2>/dev/null || echo "Plot generation failed"
+    else
+        echo "No plotting script found - skipping plot generation"
+    fi
 fi
 
-echo ""
-echo "=== p-persistent CSMA-CD Simulation Complete ==="
-echo "Results available in: ${ANALYTICS_DIR}/"
-echo "  - Individual CSV files: performance_metrics_p*.csv"
-echo "  - Combined results: combined_results.csv"
-echo "  - Performance graphs: *.png files (if Python analytics ran successfully)"
-echo ""
-echo "Command used:"
-echo "  java Assignments.Assignment3.Sender localhost ${PORT} ${INPUTFILE} ${SENDER_MAC} ${RECEIVER_MAC}"
+echo
+echo "=== P-Persistent CSMA/CD Simulation Suite Complete ==="
+
+# Final verification
+CSV_COUNT_FINAL=$(ls "${ANALYTICS_DIR}"/csma_cd_results_*.csv 2>/dev/null | wc -l)
+echo "Results: ${CSV_COUNT_FINAL} CSV files with performance metrics generated"
+
+if [ -f "${ANALYTICS_DIR}/throughput_vs_p.png" ]; then
+    echo "Plots: Performance graphs generated successfully"
+else
+    echo "Plots: Not generated - check Python environment and script"
+fi
+
+echo
+echo "Files location: ${ANALYTICS_DIR}/"
+echo "✓ Script execution completed"
