@@ -54,8 +54,8 @@ fi
 
 # --- Clean up existing CSV files ---
 echo "=== Cleaning up existing CSV files ==="
-rm -f "${ANALYTICS_DIR}"/csma_cd_results_*.csv
-rm -f csma_cd_results_*.csv 2>/dev/null
+#rm -f "${ANALYTICS_DIR}"/csma_cd_results_*.csv
+#rm -f csma_cd_results_*.csv 2>/dev/null
 
 # --- Run CSMA/CD Simulations ---
 echo "=== Starting P-Persistent CSMA/CD Simulations ==="
@@ -70,6 +70,7 @@ for ((i=P_START_INT; i<=P_END_INT; i+=P_STEP_INT)); do
     P_VALUES+=($i)
 done
 
+# shellcheck disable=SC2145
 echo "P-values to simulate (integers): ${P_VALUES[@]}"
 echo
 

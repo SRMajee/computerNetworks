@@ -127,7 +127,7 @@ public class MediumServer {
 
         // export CSV
         String csvFilename = String.format("Assignments/Assignment3/csma_cd_results_%.1f.csv", p);
-        metrics.exportCsv(csvFilename);
+//        metrics.exportCsv(csvFilename);
         System.out.println("[Server] Results exported to " + csvFilename);
         System.out.println("[Server] " + metrics.summary());
     }
