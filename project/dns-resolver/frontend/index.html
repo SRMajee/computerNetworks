@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DNS Resolver | Networking Project</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        /* Increased input width */
+        #domain {
+            width: 420px;
+            max-width: 90vw;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        #resolveBtn {
+            background-color: #007bff;
+            color: white;
+        }
+        #resolveBtn:hover {
+            background-color: #0056b3;
+        }
+        #clearBtn {
+            background-color: #6c757d;
+            color: white;
+        }
+        #clearBtn:hover {
+            background-color: #495057;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .loading {
+            color: #007bff;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <h2>DNS Resolver</h2>
+    <input id="domain" type="text" placeholder="Enter domain (e.g. google.com)" />
+    <div>
+        <button id="resolveBtn" onclick="resolveDomain()">Resolve</button>
+        <button id="clearBtn" onclick="clearResult()">Clear</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        async function resolveDomain() {
+            const domain = document.getElementById("domain").value.trim();
+            const resultDiv = document.getElementById("result");
+
+            if (!domain) {
+                resultDiv.textContent = "Please enter a domain.";
+                return;
+            }
+
+            resultDiv.innerHTML = '<span class="loading">Resolving...</span>';
+
+            const start = Date.now();
+            try {
+                const res = await fetch(`http://localhost:3000/resolve?domain=${domain}`);
+                const data = await res.json();
+                const duration = data.time || (Date.now() - start);
+
+                if (data.ips && data.ips.length) {
+                    resultDiv.innerHTML = `
+                        <div>IP Address(es): ${data.ips.join(", ")}</div>
+                        <div>⏱️ Time taken: ${duration} ms</div>`;
+                } else {
+                    resultDiv.textContent = "No IPs found.";
+                }
+            } catch (err) {
+                resultDiv.textContent = "Error: " + err.message;
+            }
+        }
+
+        function clearResult() {
+            document.getElementById("domain").value = "";
+            document.getElementById("result").textContent = "";
+        }
+    </script>
+</body>
+</html>
